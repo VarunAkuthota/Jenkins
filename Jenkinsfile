@@ -7,7 +7,7 @@ pipeline {
             steps {
                 script {
                     echo "initializing"
-                    //gv = load "script.groovy"
+                    gv = load "script.groovy"
                 }
             }
         }
