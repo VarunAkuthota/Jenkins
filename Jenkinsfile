@@ -2,37 +2,64 @@ def gv
 
 pipeline {
     agent any
-    stages {
-        stage("init") {
-            steps {
-                script {
-                    gv = load "script.groovy"
+    parameters {
+        choice(name: 'VERSION', choices: ['1.0.0','1.0.1','1.0.2'], description: '')
+        booleanParam(name: 'executeTests', defaultValue: true, description: '')
+    }
+
+/*
+    environment {
+        username = 'admin'
+        myname = 'admin'
+    }
+*/
+
+stages {
+
+    stage("init"){
+        steps{
+            script{
+            gv = load "script.groovy"
                 }
             }
         }
-        stage("build jar") {
-            steps {
-                script {
-                    echo "building jar"
-                    //gv.buildJar()
-                }
+
+
+    stage("build"){
+        steps{
+        script {
+                gv.buildApp()
+            }
             }
         }
-        stage("build image") {
-            steps {
-                script {
-                    echo "building image"
-                    //gv.buildImage()
+
+    stage("Test"){
+        when {
+            expression {
+                params.executeTests
                 }
             }
-        }
-        stage("deploy") {
-            steps {
-                script {
-                    echo "deploying"
-                    //gv.deployApp()
-                }
+        steps {
+            script{   
+            gv.TestApp()          
             }
         }
-    }   
+        }
+
+    stage("deploy"){
+        input {
+            message "select the env to deploy"
+            ok "Done"
+            parameters {
+                    choice(name: 'Env', choices: ['Dev','Stage','Prod'], description: '')
+            }
+        }
+        steps{
+            script{
+                gv.DeployApp()
+                echo "Deploying to ${Env}"
+            }
+            }
+        }
+  }
 }
