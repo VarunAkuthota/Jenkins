@@ -44,7 +44,7 @@ stage("Test"){
 }
 
 stage("deploy"){
-    stage{
+    steps{
         script{
             gv.DeployApp()
         }
